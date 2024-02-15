@@ -1,0 +1,37 @@
+body {
+  padding: 0px;
+  min-width: 250px;
+  position: relative;
+  padding: 10px;
+}
+
+.title {
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.btn-copy {
+  display: block;
+  font-size: 16px;
+  text-align: center;
+  border-radius: 100px;
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
+  -o-border-radius: 100px;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  margin: 0 auto;
+  background-image: linear-gradient(
+    to right,
+    #5a70d4,
+    #834fb9,
+    #5a80d2,
+    #892ad8
+  );
+}
