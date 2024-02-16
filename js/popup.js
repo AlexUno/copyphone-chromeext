@@ -3,7 +3,7 @@ const $btnScanAll = document.getElementById("btn-scan-all");
 
 function onResult(frames) {
   if (!frames || !frames.length) {
-    alert("Не удалось найти номера телефонов на указанной странице");
+    // alert("Не удалось найти номера телефонов на указанной странице");
   }
 
   window.close();
@@ -17,7 +17,6 @@ function execScript(tabId) {
     },
     onResult
   );
-  window.close();
 }
 
 function tabQueryHandler(active = true) {
