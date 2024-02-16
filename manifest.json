@@ -1,6 +1,6 @@
 {
-  "name": "Скопировать телефон",
-  "description": "Форматирование, выделение и добавление кнопки копирования для телефонных номеров на странице",
+  "name": "Кнопка копирования",
+  "description": "Форматирование номеров, выделение и добавление кнопки копирования для элементов на странице",
   "version": "1.0.0",
   "manifest_version": 3,
   "action": {
@@ -13,5 +13,5 @@
     "48": "icons/icon_48.png",
     "128": "icons/icon_128.png"
   },
-  "permissions": ["activeTab", "scripting"]
+  "permissions": ["activeTab", "scripting", "tabs"]
 }
