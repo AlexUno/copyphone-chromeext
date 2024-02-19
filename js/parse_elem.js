@@ -61,6 +61,22 @@
       site: "zarplata.ru",
       elements: [".bloko-header-1>span", ".bloko-translate-guard>p>span"],
     },
+	{
+      site: "rabota.ru",
+      elements: [".candidate-name", ".b-city-info"],
+    },
+	{
+      site: "avito.ru",
+      elements: [".js-seller-info-name>span"],
+    },
+	{
+      site: "joblab.ru",
+      elements: [".table-to-div tr:nth-child(1)>td:nth-child(2)", ".table-to-div tr:nth-child(9)>td:nth-child(2)"],
+    },
+	{
+      site: "farpost.ru",
+      elements: ["span[data-field=\"subject\"]", "span[data-field=\"cityId\"]"],
+    },
   ];
 
   function addStyle2Elem(elem) {
@@ -89,7 +105,7 @@
     $btnCopy.style.boxShadow = "0 2px 3px 0 rgba(0, 0, 0, 0.5)";
     $btnCopy.innerHTML = svgIcon;
     $btnCopy.addEventListener("click", function () {
-      window.navigator.clipboard.writeText(clipboardValue);
+      window.navigator.clipboard.writeText(clipboardValue.trim());
     });
     elem.append($btnCopy);
   }
