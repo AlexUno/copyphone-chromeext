@@ -52,31 +52,76 @@
 </g>
 </svg>
   `;
+  const spreadsheet_values = { owner: "Александр" };
   const siteElements = [
     {
       site: "hh.ru",
-      elements: [".bloko-header-1>span", ".bloko-translate-guard>p>span"],
+      name: "HH",
+      elements: [
+        {
+          name: "name",
+          selector: ".bloko-header-1>span",
+          pattern: "",
+        },
+        {
+          name: "phone",
+          selector: 'div[data-qa="resume-contacts-phone"]',
+          pattern: "",
+        },
+        {
+          name: "city",
+          selector: ".bloko-translate-guard>p>span",
+          pattern: "",
+        },
+        {
+          name: "status",
+          selector: 'div[data-qa="resume-comments"]',
+          pattern: "отзывы",
+        },
+      ],
     },
     {
       site: "zarplata.ru",
-      elements: [".bloko-header-1>span", ".bloko-translate-guard>p>span"],
+      name: "Зарплата ру",
+      elements: [
+        {
+          name: "name",
+          selector: ".bloko-header-1>span",
+          pattern: "",
+        },
+        {
+          name: "phone",
+          selector: 'div[data-qa="resume-contacts-phone"]',
+          pattern: "",
+        },
+        {
+          name: "city",
+          selector: ".bloko-translate-guard>p>span",
+          pattern: "",
+        },
+        {
+          name: "status",
+          selector: 'div[data-qa="resume-comments"]',
+          pattern: "отзывы",
+        },
+      ],
     },
-	{
-      site: "rabota.ru",
-      elements: [".candidate-name", ".b-city-info"],
-    },
-	{
-      site: "avito.ru",
-      elements: [".js-seller-info-name>span"],
-    },
-	{
-      site: "joblab.ru",
-      elements: [".table-to-div tr:nth-child(1)>td:nth-child(2)", ".table-to-div tr:nth-child(9)>td:nth-child(2)"],
-    },
-	{
-      site: "farpost.ru",
-      elements: ["span[data-field=\"subject\"]", "span[data-field=\"cityId\"]"],
-    },
+    // {
+    //     site: "rabota.ru",
+    //     elements: [".candidate-name", ".b-city-info"],
+    //   },
+    // {
+    //     site: "avito.ru",
+    //     elements: [".js-seller-info-name>span"],
+    //   },
+    // {
+    //     site: "joblab.ru",
+    //     elements: [".table-to-div tr:nth-child(1)>td:nth-child(2)", ".table-to-div tr:nth-child(9)>td:nth-child(2)"],
+    //   },
+    // {
+    //     site: "farpost.ru",
+    //     elements: ["span[data-field=\"subject\"]", "span[data-field=\"cityId\"]"],
+    //   },
   ];
 
   function addStyle2Elem(elem) {
@@ -119,19 +164,195 @@
     return $span;
   }
 
+  function phoneSelection(elem) {
+    let content = elem.innerHTML;
+    content = content.replace(/href="[^"]*"/gi, "");
+    const results = content.match(/\+?[78][\d\-\(\) ]{9,}\d/gi);
+    if (results) {
+      results.forEach((item) => {
+        let cut_item = item.replace(/[\(\)\-\s]/g, "");
+        cut_item = cut_item.replace(/\+7/, "8");
+        spreadsheet_values["phone"] = cut_item;
+        content = content.replace(
+          item,
+          `<span style="position: relative; background: #ADFF2F; border-radius: 100px; padding: 5px;">${cut_item}<button style="display: flex; justify-content: center; align-items: center; width: 30px; height: 30px; border: 0; border-radius: 100px; background: #d3d3d3; top: 50%; transform: translateY(-50%); position: absolute; right: -25px; box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);" onclick={window.navigator.clipboard.writeText('${cut_item}');}>${svgIcon}</button></span>`
+        );
+      });
+
+      elem.innerHTML = content;
+    }
+  }
+
+  const patterns = [
+    {
+      "отказ|сбросил трубку|неудобно говорить|неактуально|рассматривает удаленку|подумает":
+        "Отказ",
+    },
+    { "приглашен|пригл": "Приглашен" },
+    { "ндз|телефон недоступен": "Недозвон" },
+    { перезвонить: "Перезвонить" },
+  ];
+
+  function patternSelection(elem) {
+    let content = elem.innerHTML;
+
+    for (let i = 0; i < patterns.length; i++) {
+      const pattern = Object.keys(patterns[i])[0];
+      const regex = new RegExp(pattern, "gi");
+      if (content.match(regex)) {
+        const value = patterns[i][pattern];
+        spreadsheet_values["status"] = value;
+        content = content.replace(
+          regex,
+          `<span style="position: relative; background: #ADFF2F; border-radius: 100px; padding: 5px;">${value}<button style="display: flex; justify-content: center; align-items: center; width: 30px; height: 30px; border: 0; border-radius: 100px; background: #d3d3d3;     top: 50%; transform: translateY(-50%); position: absolute; right: -25px; box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);" onclick={window.navigator.clipboard.writeText('${value}');}>${svgIcon}</button></span>`
+        );
+
+        elem.innerHTML = content;
+        break;
+      }
+    }
+  }
+
   for (let i = 0; i < siteElements.length; i++) {
     if (window.location.host.includes(siteElements[i].site)) {
       if (!siteElements[i].elements) break;
 
       siteElements[i].elements.forEach((elem) => {
-        const $el = document.querySelector(elem);
-        if ($el) {
+        const $el = document.querySelector(elem.selector);
+        if ($el && elem.name == "phone") {
+          phoneSelection($el);
+        } else if ($el && !elem.pattern) {
           const $wrapElem = createWrapElem($el);
           addStyle2Elem($wrapElem);
           addBtnCopy($wrapElem, $el.textContent);
+          if (elem.name) {
+            spreadsheet_values[elem.name] = $el.textContent.trim();
+            spreadsheet_values["site"] = siteElements[i].name;
+          }
+        } else if ($el && elem.pattern) {
+          patternSelection($el);
         }
       });
       break;
     }
   }
+
+  const $boxExcel = document.createElement("div");
+  $boxExcel.style.position = "fixed";
+  $boxExcel.style.bottom = "0";
+  $boxExcel.style.right = "0";
+  $boxExcel.style.left = "0";
+  $boxExcel.style.background = "#FFF";
+  $boxExcel.style.zIndex = "9999999";
+  $boxExcel.style.display = "flex";
+  $boxExcel.style.justifyContent = "space-around";
+  $boxExcel.style.alignItems = "center";
+  $boxExcel.style.padding = "20px";
+  $boxExcel.style.borderTopLeftRadius = "30px";
+  $boxExcel.style.borderTopRightRadius = "30px";
+  $boxExcel.style.boxShadow = "0 0 50px 0 rgba(133, 133, 133, 0.5)";
+
+  $boxExcel.addEventListener("input", function (e) {
+    switch (e.target.dataset.type) {
+      case "name":
+        spreadsheet_values["name"] = e.target.value;
+        break;
+      case "city":
+        spreadsheet_values["city"] = e.target.value;
+        break;
+      case "phone":
+        spreadsheet_values["phone"] = e.target.value;
+        break;
+      case "site":
+        spreadsheet_values["site"] = e.target.value;
+        break;
+      case "status":
+        spreadsheet_values["status"] = e.target.value;
+        break;
+    }
+    console.log(spreadsheet_values);
+  });
+
+  Object.keys(spreadsheet_values).forEach((key) => {
+    const $input = document.createElement("input");
+    $input.style.border = "1px solid #c3c3c3";
+    $input.style.padding = "5px 10px";
+    $input.style.borderRadius = "5px";
+    $input.type = "text";
+    $input.style.fontSize = "13px";
+    $input.style.width = "12%";
+    $input.value = spreadsheet_values[key];
+    $input.setAttribute("data-type", key);
+    $boxExcel.appendChild($input);
+  });
+
+  const $btnExcel = document.createElement("button");
+  $btnExcel.style.border = "0";
+  $btnExcel.style.width = "80px";
+  $btnExcel.style.height = "80px";
+  $btnExcel.style.fontSize = "12px";
+  $btnExcel.style.lineHeight = "130%";
+  $btnExcel.style.borderRadius = "100px";
+  $btnExcel.style.background = "#d3d3d3";
+  $btnExcel.style.boxShadow = "0 0 16px 0 rgba(0, 0, 0, 0.5)";
+  $btnExcel.style.bottom = "30px";
+  $btnExcel.style.right = "30px";
+  $btnExcel.style.display = "flex";
+  $btnExcel.style.justifyContent = "center";
+  $btnExcel.style.alignItems = "center";
+  $btnExcel.style.padding = "20px";
+  $btnExcel.style.cursor = "pointer";
+  $btnExcel.textContent = "Добавить в базу";
+
+  const urlSpreadsheet = "http://localhost:8000/api/spreadsheet/append";
+  const SPREADSHEET_ID = "1x7nFPG7UmoSd1dLLPD5w4uRfHoEfFCEUH232E_xSOwk";
+  const SHEET_NAME = "Лист1";
+  const START_COLUMN = "A";
+  const END_COLUMN = "E";
+
+  $btnExcel.addEventListener("click", async function (e) {
+    const body = {
+      spreadsheet_id: SPREADSHEET_ID,
+      sheet_name: SHEET_NAME,
+      start_column: START_COLUMN,
+      end_column: END_COLUMN,
+      values: [
+        spreadsheet_values["owner"] || "",
+        spreadsheet_values["name"] || "",
+        spreadsheet_values["phone"] || "",
+        spreadsheet_values["site"] || "",
+        spreadsheet_values["status"] || "",
+      ],
+    };
+
+    try {
+      $btnExcel.textContent = "Добавление...";
+      const response = await fetch(urlSpreadsheet, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        if (!data.errors) {
+          alert("Данные добавлены!");
+        }
+        return;
+      }
+
+      throw new Error("Данные не добавлены!");
+    } catch (e) {
+      alert("Произошла ошибка порпобуйте еще раз!");
+      console.log(e);
+      return false;
+    } finally {
+      $btnExcel.textContent = "Добавить в базу";
+    }
+  });
+
+  $boxExcel.appendChild($btnExcel);
+  document.body.append($boxExcel);
 })();

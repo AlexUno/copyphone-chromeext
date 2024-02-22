@@ -13,7 +13,7 @@ function execScript(tabId) {
   chrome.scripting.executeScript(
     {
       target: { tabId, allFrames: true },
-      files: ["js/parse_text.js", "js/parse_elem.js"],
+      files: ["js/parse_elem.js"],
     },
     onResult
   );
